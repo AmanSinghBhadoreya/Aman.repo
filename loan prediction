@@ -1,0 +1,122 @@
+import streamlit as st
+import numpy as np
+import pandas as pd
+import joblib
+import shap
+import matplotlib.pyplot as plt
+import smtplib
+from email.mime.text import MIMEText
+import os
+
+# Load model and scaler
+model = joblib.load("finai_model.pkl")
+scaler = joblib.load("finai_scaler.pkl")
+
+# Optional SHAP background data
+if os.path.exists("loan_data_with_credit_score.csv"):
+    df_train = pd.read_csv("loan_data_with_credit_score.csv").dropna()
+    for col in df_train.select_dtypes(include="object").columns:
+        df_train[col] = pd.factorize(df_train[col])[0]
+    X_background = scaler.transform(df_train.drop("Loan_Status", axis=1))
+else:
+    X_background = np.random.randn(100, 11)
+
+# UI setup
+st.set_page_config(page_title="FinAI - Beautified", layout="centered")
+st.title("🤖 FinAI: Intelligent Loan Advisor (Enhanced View)")
+
+# Sidebar inputs
+st.sidebar.header("Enter Applicant Details")
+income = st.sidebar.number_input("Applicant Income", 0)
+co_income = st.sidebar.number_input("Coapplicant Income", 0)
+loan = st.sidebar.number_input("Loan Amount", 0)
+term = st.sidebar.number_input("Loan Term (in days)", 0)
+credit_history = st.sidebar.selectbox("Credit History", [1.0, 0.0])
+dependents = st.sidebar.selectbox("Dependents", [0, 1, 2, 3])
+gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
+married = st.sidebar.selectbox("Married", ["Yes", "No"])
+education = st.sidebar.selectbox("Education", ["Graduate", "Not Graduate"])
+self_employed = st.sidebar.selectbox("Self Employed", ["Yes", "No"])
+credit_score = st.sidebar.slider("Credit Score", 300, 900, 650)
+email = st.sidebar.text_input("Enter email to receive result (optional)")
+
+# Encode inputs
+gender = 1 if gender == "Male" else 0
+married = 1 if married == "Yes" else 0
+education = 1 if education == "Graduate" else 0
+self_employed = 1 if self_employed == "Yes" else 0
+
+input_data = np.array([[income, co_income, loan, term, credit_history, dependents,
+                        gender, married, education, self_employed, credit_score]])
+scaled_input = scaler.transform(input_data)
+
+# Main prediction
+if st.button("🔍 Predict Loan Eligibility"):
+    pred = model.predict(scaled_input)[0]
+    prob = model.predict_proba(scaled_input)[0][pred] * 100
+    result_label = "Approved" if pred == 1 else "Rejected"
+
+    st.subheader("📊 Prediction Result")
+    st.write(f"Loan Status: **{result_label}**")
+    st.progress(int(prob))
+
+    st.subheader("💡 Summary")
+    st.write(f"Credit Score: {credit_score} ({'Excellent' if credit_score > 750 else 'Fair' if credit_score > 650 else 'Poor'})")
+    st.write(f"Income: ₹{income}, Loan Amount: ₹{loan}, Term: {term} days")
+
+    # 📉 Simulated risk breakdown chart
+    st.subheader("📉 Risk Breakdown (Simulated)")
+    labels = ['Income Stability', 'Credit History', 'Loan Burden', 'Credit Score']
+    sizes = [30, 25, 25, 20]
+    fig1, ax1 = plt.subplots()
+    ax1.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax1.axis('equal')
+    st.pyplot(fig1)
+
+    # 📈 Credit score comparison
+    st.subheader("📈 Credit Score vs Ideal")
+    comp_df = pd.DataFrame({'Your Score': [credit_score], 'Ideal Score': [700]}).T
+    st.line_chart(comp_df)
+
+    # 🔬 SHAP explanation
+    st.subheader("🔬 Feature Impact (SHAP)")
+    try:
+        explainer = shap.Explainer(model, X_background)
+        shap_values = explainer(scaled_input)
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        shap.plots.waterfall(shap_values[0], show=False)
+        st.pyplot(bbox_inches='tight')
+    except Exception as e:
+        st.warning(f"SHAP could not explain: {e}")
+
+    # 📂 Save to prediction log
+    log_entry = {
+        "Income": income, "CoIncome": co_income, "Loan": loan, "Term": term,
+        "CreditHistory": credit_history, "Dependents": dependents,
+        "Gender": gender, "Married": married, "Education": education,
+        "SelfEmployed": self_employed, "CreditScore": credit_score,
+        "Prediction": result_label, "Confidence": round(prob, 2)
+    }
+    pd.DataFrame([log_entry]).to_csv("prediction_log.csv", mode='a', header=not os.path.exists("prediction_log.csv"), index=False)
+
+    # 📧 Email feature
+    if email:
+        try:
+            msg = MIMEText(f"Loan Status: {result_label}\nConfidence: {prob:.2f}%")
+            msg['Subject'] = "FinAI - Your Loan Assessment Result"
+            msg['From'] = "your_email@example.com"
+            msg['To'] = email
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login("your_email@example.com", "your_password")
+                server.send_message(msg)
+            st.success("📧 Email sent successfully.")
+        except Exception as e:
+            st.warning(f"Email sending failed: {e}")
+
+# Admin view
+if st.checkbox("📂 View All Past Predictions"):
+    try:
+        df_log = pd.read_csv("prediction_log.csv")
+        st.dataframe(df_log)
+    except:
+        st.warning("No logs available.")
