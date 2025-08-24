@@ -1,1 +1,31 @@
-
+1. import java.util.ArrayList;
+2. import java.util.Scanner;
+3. class BankAccount {
+4. private String accountNumber;
+5. private String accountHolderName;
+6. private double balance;
+7. public BankAccount(String accountNumber, String accountHolderName, double initialBalance) {
+8. this.accountNumber = accountNumber;
+9. this.accountHolderName = accountHolderName;
+10. this.balance = initialBalance;
+11. }
+12. public String getAccountNumber() {
+13. return accountNumber;
+14. }
+15. public String getAccountHolderName() {
+16. return accountHolderName;
+17. }
+18. public double getBalance() {
+19. return balance;
+20. }
+21. public void deposit(double amount) {
+22. if (amount > 0) {
+23. balance += amount;
+24. System.out.println("Successfully deposited $" + amount);
+25. } else {
+26. System.out.println("Invalid deposit amount");
+27. }
+28. }
+29. public void withdraw(double amount) {
+30. if (amount > 0 && amount <= balance) {
+31. balance -= amount;
