@@ -29,3 +29,38 @@
 29. public void withdraw(double amount) {
 30. if (amount > 0 && amount <= balance) {
 31. balance -= amount;
+32. System.out.println("Successfully withdrew $" + amount);
+33. } else {
+34. System.out.println("Invalid withdrawal amount or insufficient funds");
+35. }
+36. }
+37. }
+38. class Bank {
+39. private ArrayList<BankAccount> accounts;
+40. private Scanner scanner;
+41. public Bank() {
+42. accounts = new ArrayList<>();
+43. scanner = new Scanner(System.in);
+44. }
+45. public void createAccount() {
+46. System.out.print("Enter account number: ");
+47. String accountNumber = scanner.nextLine();
+48. for (BankAccount account : accounts) {
+49. if (account.getAccountNumber().equals(accountNumber)) {
+a. System.out.println("Account number already exists!");
+b. return;
+50. }
+51. }
+52. System.out.print("Enter account holder name: ");
+53. String accountHolderName = scanner.nextLine();
+54. System.out.print("Enter initial balance: ");
+55. double initialBalance = scanner.nextDouble();
+56. scanner.nextLine();
+57. if (initialBalance >= 0) {
+58. BankAccount account = new BankAccount(accountNumber, accountHolderName, initialBalance);
+59. accounts.add(account);
+60. System.out.println("Account created successfully!");
+61. } else {
+62. System.out.println("Invalid initial balance");
+63. }
+64. }
