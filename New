@@ -64,3 +64,20 @@ b. return;
 62. System.out.println("Invalid initial balance");
 63. }
 64. }
+65. public BankAccount findAccount(String accountNumber) {
+66. for (BankAccount account : accounts) {
+67. if (account.getAccountNumber().equals(accountNumber)) {
+a. return account;
+68. }
+69. }
+70. return null;
+71. }
+72. public void deposit() {
+73. System.out.print("Enter account number: ");
+74. String accountNumber = scanner.nextLine();
+75. BankAccount account = findAccount(accountNumber);
+76. if (account != null) {
+77. System.out.print("Enter deposit amount: ");
+78. double amount = scanner.nextDouble();
+79. scanner.nextLine();
+80. account.deposit(amount);
