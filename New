@@ -81,3 +81,22 @@ a. return account;
 78. double amount = scanner.nextDouble();
 79. scanner.nextLine();
 80. account.deposit(amount);
+81. } else {
+82. System.out.println("Account not found!");
+83. }
+84. }
+85. public void withdraw() {
+86. System.out.print("Enter account number: ");
+87. String accountNumber = scanner.nextLine();
+88. BankAccount account = findAccount(accountNumber);
+89. if (account != null) {
+90. System.out.print("Enter withdrawal amount: ");
+91. double amount = scanner.nextDouble();
+92. scanner.nextLine();
+93. account.withdraw(amount);
+94. } else {
+95. System.out.println("Account not found!");
+96. }
+97. }
+98. public void checkBalance() {
+99. System.out.print("Enter account number: ");
