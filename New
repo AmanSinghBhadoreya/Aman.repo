@@ -100,3 +100,4 @@ a. return account;
 97. }
 98. public void checkBalance() {
 99. System.out.print("Enter account number: ");
+100.String accountNumber = scanner.nextLine();
