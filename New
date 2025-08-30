@@ -101,3 +101,18 @@ a. return account;
 98. public void checkBalance() {
 99. System.out.print("Enter account number: ");
 100.String accountNumber = scanner.nextLine();
+101. BankAccount account = findAccount(accountNumber);
+102. if (account != null) {
+103. System.out.println("Account Holder: " + account.getAccountHolderName());
+104. System.out.println("Account Number: " + account.getAccountNumber());
+105. System.out.println("Current Balance: $" + account.getBalance());
+106. } else {
+107. System.out.println("Account not found!");
+108. }
+109. }
+110. }
+111. public class BankAccountManagementSystem {
+112. public static void main(String[] args) {
+113. Bank bank = new Bank();
+114. Scanner scanner = new Scanner(System.in);
+115. int choice;
