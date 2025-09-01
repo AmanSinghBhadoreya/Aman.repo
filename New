@@ -116,3 +116,25 @@ a. return account;
 113. Bank bank = new Bank();
 114. Scanner scanner = new Scanner(System.in);
 115. int choice;
+116. do {
+117. System.out.println("\n=== Bank Account Management System ===");
+118. System.out.println("1. Create Account");
+119. System.out.println("2. Deposit");
+120. System.out.println("3. Withdraw");
+121. System.out.println("4. Check Balance");
+122. System.out.println("5. Exit");
+123. System.out.print("Enter your choice: ");
+124. choice = scanner.nextInt();
+125. scanner.nextLine();
+126. switch (choice) { 
+case 1:
+case 2:
+case 3:
+case 4:
+bank.createAccount(); 
+break;
+bank.deposit(); 
+break;
+bank.withdraw(); 
+break;
+bank.checkBalance();
