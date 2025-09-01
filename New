@@ -138,3 +138,6 @@ break;
 bank.withdraw(); 
 break;
 bank.checkBalance();
+break;
+System.out.println("Thank you for using our banking system!"); 
+break;
